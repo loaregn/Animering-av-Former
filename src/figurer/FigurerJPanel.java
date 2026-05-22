@@ -4,8 +4,34 @@ import java.util.ArrayList;
 public class FigurerJPanel extends javax.swing.JPanel {
     ArrayList<Figurer> figurLista = new ArrayList<>();
     FileManager fmgr = new FileManager();
+    
+    private javax.swing.Timer animeringsTimer;
+    private boolean isMoving = false; //en true false variabel som bestämmer ifall formerna ska röra på sig. Startar som false (start på knappen)
+    
     public FigurerJPanel() {
         initComponents();
+        
+          
+          //gör så att det kan bli animerat
+    animeringsTimer = new javax.swing.Timer(16, new java.awt.event.ActionListener() {
+        //timer setupen med 16 som värde, påverkar hastigheten
+    @Override
+    public void actionPerformed(java.awt.event.ActionEvent e) {
+        for (Figurer f : figurLista) { //för arraylisten, alltså en loop (for-loop) 
+            f.move(0, 0); //flyttar på varje form / figur, ignorerar nollorna och sätter xSpeed för att uppdatera positionen
+
+            if (f.getXpos() + 40 > getWidth()) { //gör så att det rör på sig, därefter flippar från sida, kan ändra på +40 beroende på form / figur-storlek
+                f.flipDirection(); //där getWidth är totala widthen av fönstret, där +40 gör så att den definitivt träffar sidan och inte innan
+            }
+            else if (f.getXpos() < 0) { //samma sak här, men med andra sidan ifall xPos mindre än 0, alltså även höger
+                f.flipDirection();
+            }
+        }
+        repaint(); //för animeringen så att alla former fortsätta existera
+    }
+});
+        
+
     }
     @SuppressWarnings("unchecked")
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
@@ -18,6 +44,7 @@ public class FigurerJPanel extends javax.swing.JPanel {
         rbtnCirkel = new javax.swing.JRadioButton();
         btnSpara = new javax.swing.JButton();
         btnHämta = new javax.swing.JButton();
+        btnAnimate = new javax.swing.JButton();
 
         addMouseListener(new java.awt.event.MouseAdapter() {
             public void mouseClicked(java.awt.event.MouseEvent evt) {
@@ -56,26 +83,38 @@ public class FigurerJPanel extends javax.swing.JPanel {
             }
         });
 
+        btnAnimate.setText("Start");
+        btnAnimate.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnAnimateActionPerformed(evt);
+            }
+        });
+
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(this);
         this.setLayout(layout);
         layout.setHorizontalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
-                .addContainerGap()
-                .addComponent(rbtnTriangel)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(rbtnRektangel)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(rbtnCirkel)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                .addComponent(btnHämta)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 11, Short.MAX_VALUE)
-                .addComponent(btnRensa)
-                .addGap(21, 21, 21))
-            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
                 .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                 .addComponent(btnSpara)
                 .addGap(65, 65, 65))
+            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
+                .addContainerGap()
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+                    .addGroup(layout.createSequentialGroup()
+                        .addGap(0, 0, Short.MAX_VALUE)
+                        .addComponent(btnAnimate))
+                    .addGroup(layout.createSequentialGroup()
+                        .addComponent(rbtnTriangel)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(rbtnRektangel)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(rbtnCirkel)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                        .addComponent(btnHämta)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 11, Short.MAX_VALUE)
+                        .addComponent(btnRensa)))
+                .addGap(21, 21, 21))
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -89,20 +128,25 @@ public class FigurerJPanel extends javax.swing.JPanel {
                     .addComponent(btnHämta))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(btnSpara)
-                .addContainerGap(248, Short.MAX_VALUE))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(btnAnimate)
+                .addContainerGap(219, Short.MAX_VALUE))
         );
     }// </editor-fold>//GEN-END:initComponents
 
     private void btnRensaActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnRensaActionPerformed
-        this.figurLista.clear();
+        this.figurLista.clear(); //clearar arraylistan
         repaint();
     }//GEN-LAST:event_btnRensaActionPerformed
 
     private void formMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_formMouseClicked
+        /**
+         * Detta skapar själva formerna med random storlek. Då figur t = hur man skapar en triangel osv, då x y är positioner, med b = bas och h = höjd
+         */
         int x = evt.getX();
         int y = evt.getY();
-        int b = (int) (Math.random() * 10) + 20;
-        int h = (int) (Math.random() * 10) + 20;
+        int b = (int) (Math.random() * 30) + 15;
+        int h = (int) (Math.random() * 30) + 15;
         if(this.rbtnTriangel.isSelected()){
             Figurer t = new Triangel(y+(h/2), x-(b/2), b, h, true);
             figurLista.add(t);
@@ -119,21 +163,36 @@ public class FigurerJPanel extends javax.swing.JPanel {
     }//GEN-LAST:event_formMouseClicked
 
     private void btnSparaActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnSparaActionPerformed
-        fmgr.saveToFile(figurLista);
+        fmgr.saveToFile(figurLista); //sparar formerna
     }//GEN-LAST:event_btnSparaActionPerformed
 
     private void btnHämtaActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnHämtaActionPerformed
-        figurLista = fmgr.readFromFile();
+        figurLista = fmgr.readFromFile(); //gör det möjligt att hämta formerna
         repaint();
     }//GEN-LAST:event_btnHämtaActionPerformed
+
+    private void btnAnimateActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnAnimateActionPerformed
+        
+        if (isMoving == false) { //om den inte rör på sig, om man klickar denna knapp
+        animeringsTimer.start(); //startar animationen som jag gjorde över
+        btnAnimate.setText("Stop"); //sätter texten till stop eftersom den rör på sig
+        isMoving = true; //ändrar värdet till true på
+    } else { //annars så stannar animationen ifall klickad på stop
+        animeringsTimer.stop();
+        btnAnimate.setText("Start");
+        isMoving = false; //ändrar färdet till false. den rör inte på sig
+    }
+       
+    }//GEN-LAST:event_btnAnimateActionPerformed
     @Override
     protected void paintComponent(Graphics g) {
         super.paintComponent(g);
-        for (int i = 0; i < figurLista.size(); i++) {
+        for (int i = 0; i < figurLista.size(); i++) { 
             figurLista.get(i).draw(g);
         }
     }
     // Variables declaration - do not modify//GEN-BEGIN:variables
+    private javax.swing.JButton btnAnimate;
     private javax.swing.JButton btnHämta;
     private javax.swing.JButton btnRensa;
     private javax.swing.JButton btnSpara;

@@ -2,7 +2,7 @@ package figurer;
 import java.awt.Color;
 import java.awt.Graphics;
 public class Cirkel extends Figurer {
-
+    
     private int radie;
     private boolean färg;
 
